@@ -286,30 +286,32 @@ public class ViewPager3D extends ViewPager {
 			if (mActivePointerId != INVALID_POINTER_ID) {
 				// Scroll to follow the motion event
 				final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-				final float x = MotionEventCompat.getX(ev, activePointerIndex);
-				final float deltaX = mLastMotionX - x;
-				final float oldScrollX = getScrollX();
-				final int width = getWidth();
-				final int widthWithMargin = width + getPageMargin();
-				final int lastItemIndex = getAdapter().getCount() - 1;
-				final int currentItemIndex = getCurrentItem();
-				final float leftBound = Math.max(0, (currentItemIndex - 1) * widthWithMargin);
-				final float rightBound = Math.min(currentItemIndex + 1, lastItemIndex) * widthWithMargin;
-				final float scrollX = oldScrollX + deltaX;
-				if (mScrollPositionOffset == 0) {
-					if (scrollX < leftBound) {
-						if (leftBound == 0) {
-							final float over = deltaX + mTouchSlop;
-							mOverscrollEffect.setPull(over / width);
+				if  (activePointerIndex != INVALID_POINTER_ID) {
+					final float x = MotionEventCompat.getX(ev, activePointerIndex);
+					final float deltaX = mLastMotionX - x;
+					final float oldScrollX = getScrollX();
+					final int width = getWidth();
+					final int widthWithMargin = width + getPageMargin();
+					final int lastItemIndex = getAdapter().getCount() - 1;
+					final int currentItemIndex = getCurrentItem();
+					final float leftBound = Math.max(0, (currentItemIndex - 1) * widthWithMargin);
+					final float rightBound = Math.min(currentItemIndex + 1, lastItemIndex) * widthWithMargin;
+					final float scrollX = oldScrollX + deltaX;
+					if (mScrollPositionOffset == 0) {
+						if (scrollX < leftBound) {
+							if (leftBound == 0) {
+								final float over = deltaX + mTouchSlop;
+								mOverscrollEffect.setPull(over / width);
+							}
+						} else if (scrollX > rightBound) {
+							if (rightBound == lastItemIndex * widthWithMargin) {
+								final float over = scrollX - rightBound - mTouchSlop;
+								mOverscrollEffect.setPull(over / width);
+							}
 						}
-					} else if (scrollX > rightBound) {
-						if (rightBound == lastItemIndex * widthWithMargin) {
-							final float over = scrollX - rightBound - mTouchSlop;
-							mOverscrollEffect.setPull(over / width);
-						}
+					} else {
+						mLastMotionX = x;
 					}
-				} else {
-					mLastMotionX = x;
 				}
 			} else {
 				mOverscrollEffect.onRelease();
